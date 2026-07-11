@@ -1,0 +1,16 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/Navbar.astro";
+import PageHeader from "../../components/PageHeader.astro";
+
+const title = "Ingredients - Herbs - Fire - Salt";
+const description = "A growing index of herbs, spices, produce, and pantry staples.";
+---
+
+<BaseLayout title={title} description={description}>
+  <Navbar />
+  <PageHeader
+    title="Ingredients"
+    description="A growing index of herbs, spices, produce, and pantry staples."
+  />
+</BaseLayout>

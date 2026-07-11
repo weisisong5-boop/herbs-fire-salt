@@ -1,0 +1,41 @@
+---
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<main class="page-header">
+  <h1>{title}</h1>
+  <p>{description}</p>
+</main>
+
+<style>
+  .page-header {
+    min-height: calc(100vh - 90px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 24px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 64px;
+    letter-spacing: 3px;
+    font-weight: 400;
+  }
+
+  p {
+    max-width: 620px;
+    margin: 28px 0 0;
+    color: var(--color-text-muted);
+    font-size: 20px;
+    line-height: 1.8;
+  }
+</style>
