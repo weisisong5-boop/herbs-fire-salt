@@ -1,0 +1,165 @@
+---
+import { existsSync } from "node:fs";
+import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/Navbar.astro";
+
+type Props = {
+  recipe: CollectionEntry<"recipes">;
+};
+
+export async function getStaticPaths() {
+  const recipes = (await getCollection("recipes")).filter((recipe) =>
+    existsSync(new URL(`../../content/recipes/${recipe.id}.md`, import.meta.url)),
+  );
+
+  return recipes.map((recipe) => ({
+    params: { slug: recipe.id },
+    props: { recipe },
+  }));
+}
+
+const { recipe } = Astro.props as Props;
+const { Content } = await render(recipe);
+const title = `${recipe.data.title} - Herbs - Fire - Salt`;
+---
+
+<BaseLayout title={title} description={recipe.data.description}>
+  <Navbar />
+
+  <article class="recipe-profile">
+    <header class="recipe-header">
+      <p class="type">Recipes</p>
+      <h1>{recipe.data.title}</h1>
+      <p class="summary">{recipe.data.description}</p>
+    </header>
+
+    {
+      recipe.data.cover && (
+        <figure class="cover">
+          <img src={recipe.data.cover} alt="" />
+        </figure>
+      )
+    }
+
+    <section class="ingredients-section" aria-labelledby="ingredients-title">
+      <h2 id="ingredients-title">Ingredients</h2>
+      <ul>
+        {recipe.data.ingredients.map((ingredient) => <li>{ingredient}</li>)}
+      </ul>
+    </section>
+
+    <div class="content">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .recipe-profile {
+    width: min(1120px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 96px 0 120px;
+  }
+
+  .recipe-header {
+    max-width: 860px;
+    margin: 0 auto 72px;
+    text-align: center;
+  }
+
+  .type {
+    margin: 0 0 24px;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    color: var(--color-text-main);
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 400;
+    line-height: 0.98;
+    letter-spacing: 2px;
+  }
+
+  .summary {
+    max-width: 680px;
+    margin: 34px auto 0;
+    color: var(--color-text-muted);
+    font-size: 21px;
+    line-height: 1.75;
+  }
+
+  .cover {
+    margin: 0 auto 88px;
+  }
+
+  .cover img {
+    display: block;
+    width: 100%;
+    max-height: 680px;
+    object-fit: cover;
+  }
+
+  .ingredients-section {
+    max-width: 720px;
+    margin: 0 auto 72px;
+    padding-top: 34px;
+    border-top: 1px solid rgba(45, 42, 36, 0.22);
+  }
+
+  h2 {
+    margin: 0 0 24px;
+    color: var(--color-text-main);
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: 1px;
+  }
+
+  ul {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    color: var(--color-text-muted);
+    font-size: 18px;
+    line-height: 1.7;
+    list-style: none;
+  }
+
+  li::before {
+    content: "/";
+    margin-right: 12px;
+    opacity: 0.45;
+  }
+
+  .content {
+    max-width: 720px;
+    margin: 0 auto;
+    color: var(--color-text-main);
+    font-size: 20px;
+    line-height: 1.85;
+  }
+
+  .content :global(p) {
+    margin: 0 0 28px;
+  }
+
+  @media (max-width: 720px) {
+    .recipe-profile {
+      padding: 68px 0 88px;
+    }
+
+    .recipe-header {
+      margin-bottom: 54px;
+    }
+
+    .cover {
+      margin-bottom: 58px;
+    }
+  }
+</style>

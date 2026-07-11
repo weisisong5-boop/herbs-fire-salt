@@ -1,11 +1,9 @@
 ---
-title: "South Yunnan Mountain"
-description: "A brief field note from a warm mountain path in South Yunnan."
-date: 2026-07-11
-location: "South Yunnan Mountains"
-cover: "/images/hero.jpg"
+title: "南极洛：高山植物与食材观察"
+description: "关于南极洛高山植物、自然材料与食材可能性的记录。"
+date: 2026-07-12
+location: "云南·南极洛"
+cover: "/images/south-yunnan-mountain.jpg"
 ---
 
-Morning heat gathered slowly along the stone path. Wild herbs grew close to the ground, carrying a sharp green scent after the rain.
-
-By noon, smoke from a small cooking fire drifted through the trees. The air held the smell of leaves, damp wood, and salt.
+正文待补充。
