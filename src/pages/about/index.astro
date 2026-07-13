@@ -1,16 +1,14 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Navbar from "../../components/Navbar.astro";
-import PageHeader from "../../components/PageHeader.astro";
+import PageHeroShell from "../../components/PageHeroShell.astro";
+import ArchiveSurface from "../../components/ArchiveSurface.astro";
+import { pageHeaders } from "../../config/pageHeaders";
 
 const title = "About - Herbs - Fire - Salt";
 const description = "About Herbs - Fire - Salt and its field journal.";
 ---
 
 <BaseLayout title={title} description={description}>
-  <Navbar />
-  <PageHeader
-    title="About"
-    description="A field journal for plants, ingredients, and ancient cooking."
-  />
+  <PageHeroShell {...pageHeaders.about} />
+  <ArchiveSurface />
 </BaseLayout>

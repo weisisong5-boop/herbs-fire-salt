@@ -1,0 +1,49 @@
+---
+import Navbar from "./Navbar.astro";
+import PageHeader from "./PageHeader.astro";
+
+interface Props {
+  title: string;
+  subtitle: string;
+  eyebrow: string;
+  backgroundImage: string;
+  backgroundPosition?: string;
+}
+
+const {
+  title,
+  subtitle,
+  eyebrow,
+  backgroundImage,
+  backgroundPosition = "center",
+} = Astro.props;
+---
+
+<div
+  class="page-hero-shell"
+  style={`--page-hero-image: url('${backgroundImage}'); --page-hero-position: ${backgroundPosition};`}
+>
+  <Navbar transparent />
+  <PageHeader title={title} subtitle={subtitle} eyebrow={eyebrow} />
+</div>
+
+<style>
+  .page-hero-shell {
+    background-image:
+      linear-gradient(
+        180deg,
+        rgba(8, 11, 12, 0.08) 0%,
+        rgba(8, 11, 12, 0.22) 100%
+      ),
+      linear-gradient(
+        90deg,
+        rgba(8, 11, 10, 0.7) 0%,
+        rgba(8, 11, 10, 0.46) 48%,
+        rgba(8, 11, 10, 0.16) 100%
+      ),
+      var(--page-hero-image);
+    background-position: center, center, var(--page-hero-position);
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+</style>

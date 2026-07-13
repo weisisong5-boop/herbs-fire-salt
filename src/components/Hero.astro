@@ -1,7 +1,8 @@
 ---
 
 ---<section class="hero">
-  <div class="content">
+  <div class="hero-frame">
+    <div class="content">
 
     <h1>
   HERBS<br />
@@ -24,6 +25,7 @@ FIELD JOURNAL · VOL.01
       Explore the field
     </a>
 
+    </div>
   </div>
 </section>
 
@@ -38,24 +40,27 @@ FIELD JOURNAL · VOL.01
   }
 
   .hero {
+    position: relative;
+    isolation: isolate;
+    display: block;
+    width: 100%;
     min-height: calc(100vh - 90px);
+    margin: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    color: #ffffff;
+    background: transparent;
+    text-align: left;
+  }
+
+  .hero-frame {
+    width: 100%;
+    min-height: inherit;
     display: flex;
     align-items: center;
     justify-content: flex-start;
     padding: 0 9vw;
     box-sizing: border-box;
-    color: #ffffff;
-    text-align: left;
-    background:
-      linear-gradient(
-        90deg,
-        rgba(10, 10, 8, 0.9) 0%,
-        rgba(10, 10, 8, 0.68) 48%,
-        rgba(10, 10, 8, 0.32) 100%
-      ),
-      url("/images/hero.jpg");
-    background-size: cover;
-    background-position: center;
   }
 
   .content {
@@ -109,6 +114,70 @@ a:hover {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 1024px) {
+  .hero {
+    min-height: calc(100dvh - 78px);
+  }
+
+  .hero-frame {
+    padding: clamp(52px, 7dvh, 72px) 7vw;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 72px;
+    letter-spacing: 9px;
+  }
+
+  .edition {
+    margin-bottom: 20px;
+  }
+
+  p {
+    margin-top: 24px;
+  }
+
+  a {
+    margin-top: 36px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    min-height: min(720px, 100svh);
+    min-height: min(720px, 100dvh);
+  }
+
+  .hero-frame {
+    padding: clamp(36px, 6dvh, 52px) 7vw;
+  }
+
+  h1 {
+    font-size: clamp(50px, 15.5vw, 62px);
+    letter-spacing: clamp(4px, 1.6vw, 7px);
+  }
+
+  .edition {
+    margin-bottom: 28px;
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+
+  p {
+    margin-top: 18px;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .location {
+    font-size: 14px;
+  }
+
+  a {
+    margin-top: 38px;
   }
 }
 </style>

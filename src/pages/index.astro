@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/Navbar.astro";
 import Hero from "../components/Hero.astro";
+import SectionTransition from "../components/SectionTransition.astro";
 import ExplorePanel from "../components/ExplorePanel.astro";
 
 const title = "Herbs - Fire - Salt";
@@ -9,7 +10,44 @@ const description = "Field notes on plants, ingredients and ancient cooking.";
 ---
 
 <BaseLayout title={title} description={description}>
-  <Navbar />
-  <Hero />
+  <div class="home-hero-shell">
+    <Navbar transparent />
+    <Hero />
+  </div>
+  <SectionTransition />
   <ExplorePanel />
 </BaseLayout>
+
+<style>
+  .home-hero-shell {
+    display: block;
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(10, 10, 8, 0.9) 0%,
+        rgba(10, 10, 8, 0.68) 48%,
+        rgba(10, 10, 8, 0.32) 100%
+      ),
+      url("/images/hero.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  @media (max-width: 1024px) {
+    .home-hero-shell {
+      background-position: 55% center;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .home-hero-shell {
+      background-position: 67% center;
+    }
+  }
+</style>

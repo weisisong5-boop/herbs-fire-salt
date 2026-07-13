@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import Footer from "../components/Footer.astro";
 
 interface Props {
   title: string;
@@ -22,6 +23,18 @@ const {
   </head>
 
   <body>
-    <slot />
+    <div class="page-flow">
+      <slot />
+    </div>
+    <Footer />
   </body>
 </html>
+
+<style>
+  .page-flow {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    width: 100%;
+  }
+</style>

@@ -1,4 +1,4 @@
-<section id="explore" class="explore-panel" aria-labelledby="explore-title">
+<section id="explore-content" class="explore-panel" aria-labelledby="explore-title">
   <div class="inner">
     <p class="eyebrow">Explore the journal</p>
     <h2 id="explore-title">Choose a path</h2>
@@ -33,14 +33,6 @@
 
 <script>
   const explorePanel = document.querySelector(".explore-panel");
-  const exploreLinks = document.querySelectorAll('a[href="#explore"]');
-
-  exploreLinks.forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      explorePanel?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  });
 
   if (explorePanel) {
     const observer = new IntersectionObserver(
@@ -59,16 +51,18 @@
 
 <style>
   .explore-panel {
+    display: block;
     position: relative;
-    min-height: calc(100vh - 80px);
+    isolation: isolate;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0;
     overflow: hidden;
     background: url("/images/explore.jpg") center 65% / cover;
     color: #ffffff;
     opacity: 0;
-    transform: translateY(28px);
-    transition:
-      opacity 650ms ease,
-      transform 650ms ease;
+    transition: opacity 650ms ease;
   }
 
   .explore-panel::before {
@@ -87,7 +81,6 @@
 
   .explore-panel.is-visible {
     opacity: 1;
-    transform: translateY(0);
   }
 
   .inner {
@@ -95,7 +88,7 @@
     z-index: 1;
     width: min(1120px, calc(100% - 48px));
     margin: 0 auto;
-    padding: 86px 0 108px;
+    padding: 106px 0 108px;
   }
 
   .eyebrow {
@@ -180,7 +173,7 @@
 
   @media (max-width: 760px) {
     .inner {
-      padding: 70px 0 86px;
+      padding: 90px 0 86px;
     }
 
     h2 {

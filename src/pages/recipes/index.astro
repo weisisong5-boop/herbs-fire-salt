@@ -1,147 +1,38 @@
 ---
-import { existsSync } from "node:fs";
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Navbar from "../../components/Navbar.astro";
-import PageHeader from "../../components/PageHeader.astro";
+import PageHeroShell from "../../components/PageHeroShell.astro";
+import ArchiveList from "../../components/ArchiveList.astro";
+import ArchiveEntry from "../../components/ArchiveEntry.astro";
+import { pageHeaders } from "../../config/pageHeaders";
+import { byOrderThenTitle } from "../../lib/archive";
 
 const title = "Recipes - Herbs - Fire - Salt";
 const description = "Simple recipes shaped by plants, fire, salt, and place.";
-const recipes = (await getCollection("recipes")).filter((recipe) =>
-  existsSync(new URL(`../../content/recipes/${recipe.id}.md`, import.meta.url)),
-);
+const recipes = (await getCollection("recipes"))
+  .filter((recipe) => !recipe.data.draft)
+  .sort(byOrderThenTitle);
 ---
 
 <BaseLayout title={title} description={description}>
-  <Navbar />
-  <PageHeader
-    title="Recipes"
-    description="Simple recipes shaped by plants, fire, salt, and place."
-  />
+  <PageHeroShell {...pageHeaders.recipes} />
 
-  <section class="recipes-list" aria-label="Recipe entries">
+  <ArchiveList label="Recipe entries">
     {
-      recipes.length > 0 ? (
-        recipes.map((recipe) => (
-          <article class="recipe">
-            <a href={`/recipes/${recipe.id}/`}>
-              <div class="copy">
-                <p class="meta">Recipe</p>
-                <h2>{recipe.data.title}</h2>
-                <p class="description">{recipe.data.description}</p>
-                <ul class="ingredients">
-                  {recipe.data.ingredients.map((ingredient) => (
-                    <li>{ingredient}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <img src={recipe.data.cover} alt="" />
-            </a>
-          </article>
-        ))
-      ) : (
-        <p class="empty">食谱正在整理中。</p>
+      recipes.length > 0 && (
+        <>
+        {recipes.map((recipe, index) => (
+          <ArchiveEntry
+            href={`/recipes/${recipe.id}/`}
+            eyebrow={`Recipe Study / ${String(index + 1).padStart(2, "0")}`}
+            title={recipe.data.title}
+            secondary={recipe.data.englishTitle ?? ""}
+            description={recipe.data.description}
+            image={recipe.data.cover}
+          />
+        ))}
+        </>
       )
     }
-  </section>
+  </ArchiveList>
 </BaseLayout>
-
-<style>
-  .recipes-list {
-    width: min(1040px, calc(100% - 48px));
-    margin: 0 auto;
-    padding: 0 0 96px;
-  }
-
-  .empty {
-    margin: 0;
-    padding: 48px 0;
-    border-top: 1px solid rgba(45, 42, 36, 0.22);
-    border-bottom: 1px solid rgba(45, 42, 36, 0.22);
-    color: var(--color-text-muted);
-    font-size: 20px;
-    line-height: 1.8;
-    text-align: center;
-  }
-
-  .recipe {
-    border-top: 1px solid rgba(45, 42, 36, 0.22);
-  }
-
-  .recipe:last-child {
-    border-bottom: 1px solid rgba(45, 42, 36, 0.22);
-  }
-
-  a {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 220px;
-    gap: 42px;
-    align-items: center;
-    padding: 34px 0;
-    color: var(--color-text-main);
-    text-decoration: none;
-    transition:
-      color 180ms ease,
-      transform 180ms ease;
-  }
-
-  a:hover {
-    color: var(--color-accent);
-    transform: translateX(6px);
-  }
-
-  .meta {
-    margin: 0 0 14px;
-    color: var(--color-text-muted);
-    font-size: 13px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 34px;
-    font-weight: 400;
-    letter-spacing: 1px;
-  }
-
-  .description {
-    max-width: 620px;
-    margin: 20px 0 0;
-    color: var(--color-text-muted);
-    font-size: 18px;
-    line-height: 1.7;
-  }
-
-  .ingredients {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 16px;
-    margin: 22px 0 0;
-    padding: 0;
-    color: var(--color-text-muted);
-    font-size: 15px;
-    list-style: none;
-  }
-
-  .ingredients li::before {
-    content: "/";
-    margin-right: 10px;
-    opacity: 0.45;
-  }
-
-  img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-  }
-
-  @media (max-width: 760px) {
-    a {
-      grid-template-columns: 1fr;
-      gap: 26px;
-    }
-  }
-</style>

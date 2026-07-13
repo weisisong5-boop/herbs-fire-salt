@@ -1,148 +1,36 @@
 ---
-import { existsSync } from "node:fs";
 import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Navbar from "../../components/Navbar.astro";
+import ArchiveDetail from "../../components/ArchiveDetail.astro";
 
 type Props = {
-  ingredient: CollectionEntry<"ingredients">;
+  entry: CollectionEntry<"ingredients">;
 };
 
 export async function getStaticPaths() {
-  const ingredients = (await getCollection("ingredients")).filter((ingredient) =>
-    existsSync(new URL(`../../content/ingredients/${ingredient.id}.md`, import.meta.url)),
-  );
-
-  return ingredients.map((ingredient) => ({
-    params: { slug: ingredient.id },
-    props: { ingredient },
+  const entries = (await getCollection("ingredients")).filter((entry) => !entry.data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
   }));
 }
 
-const { ingredient } = Astro.props as Props;
-const { Content } = await render(ingredient);
-const title = `${ingredient.data.title} - Herbs - Fire - Salt`;
+const { entry } = Astro.props as Props;
+const { Content } = await render(entry);
+const title = `${entry.data.title} - Herbs - Fire - Salt`;
 ---
 
-<BaseLayout title={title} description={ingredient.data.description}>
+<BaseLayout title={title} description={entry.data.description}>
   <Navbar />
-
-  <article class="ingredient-profile">
-    <header class="ingredient-header">
-      <p class="type">Ingredients</p>
-      <h1>{ingredient.data.title}</h1>
-      <p class="scientific-name">{ingredient.data.scientificName}</p>
-      <div class="meta">
-        <span>{ingredient.data.region}</span>
-      </div>
-      <p class="summary">{ingredient.data.description}</p>
-    </header>
-
-    {
-      ingredient.data.cover && (
-        <figure class="cover">
-          <img src={ingredient.data.cover} alt="" />
-        </figure>
-      )
-    }
-
-    <div class="content">
-      <Content />
-    </div>
-  </article>
+  <ArchiveDetail
+    eyebrow="Ingredients"
+    title={entry.data.title}
+    secondary={entry.data.englishTitle}
+    description={entry.data.description}
+    cover={entry.data.cover}
+  >
+    <Content />
+  </ArchiveDetail>
 </BaseLayout>
-
-<style>
-  .ingredient-profile {
-    width: min(1120px, calc(100% - 48px));
-    margin: 0 auto;
-    padding: 96px 0 120px;
-  }
-
-  .ingredient-header {
-    max-width: 860px;
-    margin: 0 auto 72px;
-    text-align: center;
-  }
-
-  .type {
-    margin: 0 0 24px;
-    color: var(--color-text-muted);
-    font-size: 13px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-  }
-
-  h1 {
-    margin: 0;
-    color: var(--color-text-main);
-    font-size: clamp(52px, 8vw, 96px);
-    font-weight: 400;
-    line-height: 0.98;
-    letter-spacing: 2px;
-  }
-
-  .scientific-name {
-    margin: 30px 0 0;
-    color: var(--color-text-muted);
-    font-size: 21px;
-    font-style: italic;
-    line-height: 1.6;
-  }
-
-  .meta {
-    display: flex;
-    justify-content: center;
-    margin: 24px 0 0;
-    color: var(--color-text-muted);
-    font-size: 13px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .summary {
-    max-width: 680px;
-    margin: 34px auto 0;
-    color: var(--color-text-muted);
-    font-size: 21px;
-    line-height: 1.75;
-  }
-
-  .cover {
-    margin: 0 auto 88px;
-  }
-
-  .cover img {
-    display: block;
-    width: 100%;
-    max-height: 680px;
-    object-fit: cover;
-  }
-
-  .content {
-    max-width: 720px;
-    margin: 0 auto;
-    color: var(--color-text-main);
-    font-size: 20px;
-    line-height: 1.85;
-  }
-
-  .content :global(p) {
-    margin: 0 0 28px;
-  }
-
-  @media (max-width: 720px) {
-    .ingredient-profile {
-      padding: 68px 0 88px;
-    }
-
-    .ingredient-header {
-      margin-bottom: 54px;
-    }
-
-    .cover {
-      margin-bottom: 58px;
-    }
-  }
-</style>

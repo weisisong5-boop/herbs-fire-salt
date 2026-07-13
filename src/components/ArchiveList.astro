@@ -1,0 +1,22 @@
+---
+import ArchiveSurface from "./ArchiveSurface.astro";
+
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+---
+
+<ArchiveSurface>
+  <section class="archive-list" aria-label={label}>
+    <slot />
+  </section>
+</ArchiveSurface>
+
+<style>
+  .archive-list {
+    width: 100%;
+    margin: 0;
+  }
+</style>

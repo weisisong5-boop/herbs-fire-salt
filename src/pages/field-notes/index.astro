@@ -1,14 +1,17 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Navbar from "../../components/Navbar.astro";
-import PageHeader from "../../components/PageHeader.astro";
+import PageHeroShell from "../../components/PageHeroShell.astro";
+import ArchiveList from "../../components/ArchiveList.astro";
+import ArchiveEntry from "../../components/ArchiveEntry.astro";
+import { pageHeaders } from "../../config/pageHeaders";
+import { byOrderThenDate } from "../../lib/archive";
 
 const title = "Field Notes - Herbs - Fire - Salt";
 const description = "Field notes on plants, places, and cooking traditions.";
-const notes = (await getCollection("field-notes")).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
-);
+const notes = (await getCollection("field-notes"))
+  .filter((note) => !note.data.draft)
+  .sort(byOrderThenDate);
 
 const dateFormatter = new Intl.DateTimeFormat("en", {
   month: "long",
@@ -18,80 +21,20 @@ const dateFormatter = new Intl.DateTimeFormat("en", {
 ---
 
 <BaseLayout title={title} description={description}>
-  <Navbar />
-  <PageHeader
-    title="Field Notes"
-    description="Notes from fields, kitchens, gardens, and coastlines."
-  />
+  <PageHeroShell {...pageHeaders.fieldNotes} />
 
-  <section class="notes-list" aria-label="Field Notes entries">
+  <ArchiveList label="Field Notes entries">
     {
       notes.map((note) => (
-        <article class="note">
-          <a href={`/field-notes/${note.id}/`}>
-            <p class="meta">
-              {dateFormatter.format(note.data.date)} · {note.data.location}
-            </p>
-            <h2>{note.data.title}</h2>
-            <p class="description">{note.data.description}</p>
-          </a>
-        </article>
+        <ArchiveEntry
+          href={`/field-notes/${note.id}/`}
+          eyebrow={dateFormatter.format(note.data.date)}
+          title={note.data.title}
+          secondary={`Location / ${note.data.location}`}
+          description={note.data.description}
+          image={note.data.cover}
+        />
       ))
     }
-  </section>
+  </ArchiveList>
 </BaseLayout>
-
-<style>
-  .notes-list {
-    width: min(980px, calc(100% - 48px));
-    margin: 0 auto;
-    padding: 0 0 96px;
-  }
-
-  .note {
-    border-top: 1px solid rgba(45, 42, 36, 0.22);
-  }
-
-  .note:last-child {
-    border-bottom: 1px solid rgba(45, 42, 36, 0.22);
-  }
-
-  a {
-    display: grid;
-    gap: 18px;
-    padding: 34px 0;
-    color: var(--color-text-main);
-    text-decoration: none;
-    transition:
-      color 180ms ease,
-      transform 180ms ease;
-  }
-
-  a:hover {
-    color: var(--color-accent);
-    transform: translateX(6px);
-  }
-
-  .meta {
-    margin: 0;
-    color: var(--color-text-muted);
-    font-size: 13px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 34px;
-    font-weight: 400;
-    letter-spacing: 1px;
-  }
-
-  .description {
-    max-width: 680px;
-    margin: 0;
-    color: var(--color-text-muted);
-    font-size: 18px;
-    line-height: 1.7;
-  }
-</style>
