@@ -10,16 +10,14 @@ interface Props {
 const { transparent = false } = Astro.props;
 ---
 <nav class:list={["navbar", { "navbar--transparent": transparent }]}>
-  <div class="logo">
+  <a href="/" class="logo">
     Herbs - Fire - Salt
-  </div>
+  </a>
 
   <div class="links">
-    <a href="/" aria-current={isCurrent("/") ? "page" : undefined}>Home</a>
-    <a href="/field-notes/" aria-current={isCurrent("/field-notes/") ? "page" : undefined}>Field Notes</a>
+    <a href="/" aria-current={isCurrent("/") || isCurrent("/recipes/") ? "page" : undefined}>Recipes</a>
     <a href="/ingredients/" aria-current={isCurrent("/ingredients/") ? "page" : undefined}>Ingredients</a>
-    <a href="/recipes/" aria-current={isCurrent("/recipes/") ? "page" : undefined}>Recipes</a>
-    <a href="/about/" aria-current={isCurrent("/about/") ? "page" : undefined}>About</a>
+    <a href="/field-notes/" aria-current={isCurrent("/field-notes/") ? "page" : undefined}>Dish Inspiration</a>
   </div>
 </nav>
 
@@ -31,28 +29,15 @@ const { transparent = false } = Astro.props;
     justify-content: space-between;
     align-items: center;
     box-sizing: border-box;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    background:
-      linear-gradient(
-        180deg,
-        rgba(236, 242, 248, 0.025) 0%,
-        rgba(12, 21, 34, 0.16) 100%
-      ),
-      linear-gradient(
-        90deg,
-        #34495f 0%,
-        #3d566d 38%,
-        #49657d 72%,
-        #58758d 100%
-      );
-  }
-
-  .navbar--transparent {
-    border-bottom-color: transparent;
     background: transparent;
   }
 
+  .navbar--transparent {
+    text-shadow: 0 1px 8px #171b13;
+  }
+
   .logo {
+    --nav-link-color: #f3f0e8;
     color: #f3f0e8;
     font-family: Georgia, serif;
     font-size: 24px;
@@ -83,12 +68,8 @@ const { transparent = false } = Astro.props;
     --nav-link-color: #82d4c6;
   }
 
-  .links a:nth-child(4) {
-    --nav-link-color: #e8e84f;
-  }
-
-  .links a:nth-child(5) {
-    --nav-link-color: #f3f0e8;
+  .navbar:not(.navbar--transparent) a {
+    --nav-link-color: var(--color-text-main);
   }
 
   a:hover,

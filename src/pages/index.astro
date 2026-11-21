@@ -1,53 +1,29 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/Navbar.astro";
-import Hero from "../components/Hero.astro";
-import SectionTransition from "../components/SectionTransition.astro";
-import ExplorePanel from "../components/ExplorePanel.astro";
-
-const title = "Herbs - Fire - Salt";
-const description = "Field notes on plants, ingredients and ancient cooking.";
+import SeasonCover from "../components/SeasonCover.astro";
 ---
-
-<BaseLayout title={title} description={description}>
-  <div class="home-hero-shell">
-    <Navbar transparent />
-    <Hero />
+<BaseLayout title="Herbs - Fire - Salt" showFooter={false} seasonTransition>
+  <div class="home">
+    <div class="home-navigation"><Navbar transparent /></div>
+    <SeasonCover />
   </div>
-  <SectionTransition />
-  <ExplorePanel />
 </BaseLayout>
-
 <style>
-  .home-hero-shell {
-    display: block;
+  .home {
     position: relative;
-    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     width: 100%;
-    margin: 0;
-    overflow: hidden;
-    background-image:
-      linear-gradient(
-        90deg,
-        rgba(10, 10, 8, 0.9) 0%,
-        rgba(10, 10, 8, 0.68) 48%,
-        rgba(10, 10, 8, 0.32) 100%
-      ),
-      url("/images/hero.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
-
-  @media (max-width: 1024px) {
-    .home-hero-shell {
-      background-position: 55% center;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .home-hero-shell {
-      background-position: 67% center;
-    }
+  .home-navigation {
+    position: absolute;
+    z-index: 2;
+    inset: 0 0 auto;
+    text-shadow: 0 1px 8px #171b13;
+    view-transition-name: season-navigation;
   }
 </style>

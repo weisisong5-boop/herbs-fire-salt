@@ -1,40 +1,17 @@
 ---
-import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHeroShell from "../../components/PageHeroShell.astro";
 import ArchiveList from "../../components/ArchiveList.astro";
 import ArchiveEntry from "../../components/ArchiveEntry.astro";
 import { pageHeaders } from "../../config/pageHeaders";
-import { byOrderThenDate } from "../../lib/archive";
-
-const title = "Field Notes - Herbs - Fire - Salt";
-const description = "Field notes on plants, places, and cooking traditions.";
-const notes = (await getCollection("field-notes"))
-  .filter((note) => !note.data.draft)
-  .sort(byOrderThenDate);
-
-const dateFormatter = new Intl.DateTimeFormat("en", {
-  month: "long",
-  day: "numeric",
-  year: "numeric",
-});
+import { getPairings } from "../../lib/pairings";
+const { notes } = await getPairings();
+const hash = (id: string) => [...id].reduce((value, char) => (Math.imul(value, 31) + char.charCodeAt(0)) >>> 0, 0);
+notes.sort((first, second) => hash(first.id) - hash(second.id) || first.id.localeCompare(second.id));
 ---
-
-<BaseLayout title={title} description={description}>
+<BaseLayout title="Dish Inspiration - Herbs - Fire - Salt" description={pageHeaders.fieldNotes.subtitle}>
   <PageHeroShell {...pageHeaders.fieldNotes} />
-
-  <ArchiveList label="Field Notes entries">
-    {
-      notes.map((note) => (
-        <ArchiveEntry
-          href={`/field-notes/${note.id}/`}
-          eyebrow={dateFormatter.format(note.data.date)}
-          title={note.data.title}
-          secondary={`Location / ${note.data.location}`}
-          description={note.data.description}
-          image={note.data.cover}
-        />
-      ))
-    }
+  <ArchiveList label="Dish Inspiration entries">
+    {notes.length ? notes.map((note) => <ArchiveEntry href={`/field-notes/${note.id}/`} eyebrow="Dish Inspiration" title={note.data.title} secondary="" description={note.data.description} image={note.data.cover} />) : <p>Stories are coming soon.</p>}
   </ArchiveList>
 </BaseLayout>

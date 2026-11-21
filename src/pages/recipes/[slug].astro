@@ -1,36 +1,25 @@
 ---
-import { getCollection, render } from "astro:content";
+import { render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Navbar from "../../components/Navbar.astro";
 import ArchiveDetail from "../../components/ArchiveDetail.astro";
-
-type Props = {
-  entry: CollectionEntry<"recipes">;
-};
-
+import { getPairings } from "../../lib/pairings";
+type Props = { entry: CollectionEntry<"recipes"> };
 export async function getStaticPaths() {
-  const entries = (await getCollection("recipes")).filter((entry) => !entry.data.draft);
-  return entries.map((entry) => ({
-    params: { slug: entry.id },
-    props: { entry },
-  }));
+  const { recipes } = await getPairings();
+  return recipes.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
-
 const { entry } = Astro.props as Props;
+const { noteById } = await getPairings();
+const note = noteById.get(entry.data.inspiration)!;
 const { Content } = await render(entry);
-const title = `${entry.data.title} - Herbs - Fire - Salt`;
 ---
-
-<BaseLayout title={title} description={entry.data.description}>
+<BaseLayout title={`${entry.data.title} - Herbs - Fire - Salt`} description={entry.data.description}>
   <Navbar />
-  <ArchiveDetail
-    eyebrow="Recipes"
-    title={entry.data.title}
-    secondary={entry.data.englishTitle}
-    description={entry.data.description}
-    cover={entry.data.cover}
-  >
+  <ArchiveDetail eyebrow="Recipes" title={entry.data.title} secondary={entry.data.englishTitle} description={entry.data.description} cover={entry.data.cover}>
+    <div slot="introduction" class="related"><p>{entry.data.inspirationSummary}</p><a href={`/field-notes/${note.id}/`}>Read the inspiration: {note.data.title} →</a></div>
     <Content />
   </ArchiveDetail>
 </BaseLayout>
+<style>.related { border-block: 1px solid var(--color-line); padding: 20px 0; margin-bottom: 48px; } .related a { color: inherit; text-underline-offset: 5px; }</style>

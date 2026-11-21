@@ -1,5 +1,6 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
+import { recipeCategories } from "./lib/recipe-categories";
 
 const archiveFields = {
   title: z.string(),
@@ -9,12 +10,13 @@ const archiveFields = {
   draft: z.boolean().default(false),
 };
 
+const seasons = z.array(z.enum(["spring", "summer", "autumn", "winter"])).min(1);
+
 const fieldNotes = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/field-notes" }),
   schema: z.object({
     ...archiveFields,
-    date: z.date(),
-    location: z.string(),
+    date: z.date().optional(),
   }),
 });
 
@@ -23,6 +25,7 @@ const ingredients = defineCollection({
   schema: z.object({
     ...archiveFields,
     englishTitle: z.string().optional(),
+    seasons,
   }),
 });
 
@@ -31,6 +34,10 @@ const recipes = defineCollection({
   schema: z.object({
     ...archiveFields,
     englishTitle: z.string().optional(),
+    seasons,
+    category: z.enum(recipeCategories),
+    inspiration: z.string().min(1),
+    inspirationSummary: z.string().min(1),
   }),
 });
 

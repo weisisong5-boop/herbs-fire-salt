@@ -1,0 +1,60 @@
+---
+import type { CollectionEntry } from "astro:content";
+import ArchiveSurface from "./ArchiveSurface.astro";
+import { recipeCategories, recipeCategoryLabels } from "../lib/recipe-categories";
+
+interface Props {
+  recipes: CollectionEntry<"recipes">[];
+}
+
+const { recipes } = Astro.props;
+---
+<ArchiveSurface>
+  <div class="recipe-contents">
+    {recipeCategories.map((category) => {
+      const entries = recipes.filter((recipe) => recipe.data.category === category);
+      return (
+        <details>
+          <summary><span><span lang="en">{recipeCategoryLabels[category]}</span> · {category}</span></summary>
+          {entries.length ? (
+            <ul role="list">
+              {entries.map((recipe) => (
+                <li><a href={`/recipes/${recipe.id}/`}>{recipe.data.title}</a></li>
+              ))}
+            </ul>
+          ) : <p>暂无食谱</p>}
+        </details>
+      );
+    })}
+  </div>
+</ArchiveSurface>
+<style>
+  .recipe-contents { border-bottom: 1px solid var(--color-line); }
+  details { border-top: 1px solid var(--color-line); }
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 0;
+    cursor: pointer;
+    font-size: clamp(20px, 3vw, 32px);
+    list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: "";
+    width: .45em;
+    height: .45em;
+    margin-right: .3em;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(45deg);
+  }
+  details[open] > summary::after { transform: rotate(225deg); }
+  ul, p { margin: 0 0 20px; padding: 0; }
+  ul { list-style: none; }
+  li { border-top: 1px dotted var(--color-line); }
+  a { display: block; padding: 12px 0; color: inherit; text-underline-offset: 4px; }
+  p { color: var(--color-text-muted); }
+</style>

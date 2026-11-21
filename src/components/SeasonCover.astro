@@ -1,0 +1,221 @@
+---
+import { seasons } from "../lib/seasons";
+---
+<section class="season-cover" aria-label="Seasonal recipes">
+  {seasons.map(({ id, label }, index) => (
+    <div class="season-card" data-active={index === 0}>
+      <img
+        src={`/images/cover-${id}-1920.webp?v=2`}
+        srcset={`/images/cover-${id}-900.webp?v=2 900w, /images/cover-${id}-1920.webp?v=2 1920w`}
+        sizes="100vw"
+        fetchpriority={index === 0 ? "high" : "low"}
+        alt=""
+      />
+    </div>
+  ))}
+  <div class="cover-heading">
+    <h1>Herbs<br />Fire<br />Salt</h1>
+    <p><span lang="en">Seasonal Recipes</span> · 个人料理站</p>
+    <p class="cover-intro" lang="en">A personal collection of recipes,<br />and the stories behind them.</p>
+    <p class="cover-intro" lang="en">Pick a season,<br />see what’s cooking.</p>
+  </div>
+  <div class="season-tabs" role="group" aria-label="Choose a season">
+    {seasons.map(({ id, label }, index) => (
+      <button type="button" class={id} data-destination={`/recipes/season/${id}/`} aria-pressed={index === 0}>
+        {label}
+      </button>
+    ))}
+  </div>
+  <a class="explore" href="/recipes/season/spring/" aria-label="Explore Spring recipes">Explore</a>
+</section>
+
+<script>
+  const cover = document.querySelector<HTMLElement>(".season-cover");
+  if (cover) {
+    const cards = [...cover.querySelectorAll<HTMLElement>(".season-card")];
+    const tabs = [...cover.querySelectorAll<HTMLButtonElement>("button[data-destination]")];
+    const explore = cover.querySelector<HTMLAnchorElement>(".explore")!;
+    let active = 0;
+    let timer: number;
+    let finishReveal: (() => void) | undefined;
+
+    function revealGrid(outgoing: HTMLElement, incoming: HTMLElement) {
+      outgoing.dataset.outgoing = "true";
+      incoming.dataset.revealing = "true";
+      const tiles: HTMLElement[] = [];
+      const animations: Animation[] = [];
+
+      for (let row = 0; row < 3; row++) {
+        for (let column = 0; column < 3; column++) {
+          const tile = incoming.cloneNode(true) as HTMLElement;
+          tile.removeAttribute("data-revealing");
+          tile.dataset.tile = "true";
+          tile.setAttribute("aria-hidden", "true");
+          const top = row * 100 / 3;
+          const right = (2 - column) * 100 / 3;
+          const bottom = (2 - row) * 100 / 3;
+          const left = column * 100 / 3;
+          const clip = (insetLeft: number) =>
+            `inset(${top}% ${right}% ${bottom}% ${insetLeft}%)`;
+          const fullTile = clip(left);
+          tile.style.clipPath = fullTile;
+          incoming.after(tile);
+          tiles.push(tile);
+          animations.push(tile.animate([
+            { opacity: 0, clipPath: clip(left + 7) },
+            { opacity: 1, clipPath: fullTile },
+          ], {
+            duration: 180,
+            delay: (row + 2 - column) * 60,
+            easing: "cubic-bezier(.25,.1,.25,1)",
+            fill: "both",
+          }));
+        }
+      }
+
+      const finish = () => {
+        delete outgoing.dataset.outgoing;
+        delete incoming.dataset.revealing;
+        animations.forEach((animation) => animation.cancel());
+        tiles.forEach((tile) => tile.remove());
+        if (finishReveal === finish) finishReveal = undefined;
+      };
+      finishReveal = finish;
+      void Promise.all(animations.map((animation) => animation.finished)).then(finish, () => {});
+    }
+    function schedule() {
+      window.clearTimeout(timer);
+      if (document.hidden || explore.matches(":hover, :focus")) return;
+      timer = window.setTimeout(() => selectSeason((active + 1) % cards.length), 5000);
+    }
+
+    function selectSeason(next: number) {
+      if (next !== active) {
+        finishReveal?.();
+        const outgoing = cards[active];
+        const incoming = cards[next];
+        outgoing.dataset.active = "false";
+        active = next;
+        incoming.dataset.active = "true";
+        revealGrid(outgoing, incoming);
+        tabs.forEach((tab, index) => tab.setAttribute("aria-pressed", String(index === next)));
+        explore.href = tabs[next].dataset.destination!;
+        explore.setAttribute("aria-label", `Explore ${tabs[next].textContent?.trim()} recipes`);
+      }
+      schedule();
+    }
+
+    tabs.forEach((tab, index) => tab.addEventListener("click", () => selectSeason(index)));
+    for (const event of ["pointerenter", "pointerleave", "focus", "blur"]) {
+      explore.addEventListener(event, schedule);
+    }
+    document.addEventListener("visibilitychange", schedule);
+    window.addEventListener("pageswap", () => finishReveal?.());
+    schedule();
+  }
+</script>
+
+<style>
+  .season-cover {
+    --cover-gutter: clamp(16px, 4vw, 68px);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    flex: 1;
+    min-height: 430px;
+    background: #343b31;
+    color: #fffaf0;
+  }
+  .season-card {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .season-card { visibility: hidden; }
+  .season-card[data-active="true"], .season-card[data-outgoing="true"] { visibility: visible; }
+  .season-card[data-outgoing="true"] { z-index: 1; }
+  .season-card[data-revealing="true"] { visibility: hidden; }
+  .season-card[data-tile="true"] { z-index: 2; pointer-events: none; }
+  .season-card img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .season-card[data-active="true"]:not([data-tile]):not([data-revealing]) img {
+    view-transition-name: season-cover-photo;
+  }
+  .season-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, #171b1370, transparent 26%),
+      linear-gradient(90deg, #171b1350, transparent 42%, transparent 68%, #171b1355),
+      linear-gradient(0deg, #171b1340, transparent 30%);
+    pointer-events: none;
+  }
+  .cover-heading {
+    position: absolute;
+    z-index: 4;
+    top: clamp(120px, 20vh, 190px);
+    left: calc(var(--cover-gutter) + clamp(8px, 1.4vw, 22px));
+    right: calc(var(--cover-gutter) + clamp(88px, 12vw, 142px) + 16px);
+    text-shadow: 0 3px 20px #161912cc;
+  }
+  .cover-heading h1 {
+    margin: 0;
+    font-size: clamp(2.2rem, 4.5vw, 4.5rem);
+    line-height: .94;
+    letter-spacing: -.035em;
+    font-weight: 400;
+  }
+  .cover-heading p {
+    margin: 16px 0 0;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    line-height: 1.45;
+  }
+  .cover-heading .cover-intro {
+    margin-top: 8px;
+    font-size: clamp(.85rem, 1.2vw, 1rem);
+  }
+  .season-tabs {
+    position: absolute;
+    z-index: 5;
+    top: 50%;
+    right: var(--cover-gutter);
+    transform: translateY(-50%);
+    display: grid;
+    gap: clamp(20px, 3vh, 30px);
+    width: clamp(88px, 12vw, 142px);
+  }
+  .season-tabs > button, .explore {
+    display: grid;
+    place-items: center;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid currentColor;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--label-color, #fff);
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    text-shadow: 0 1px 5px #171b13;
+  }
+  .spring { --label-color: #ffd2df; }
+  .summer { --label-color: #d0f1c8; }
+  .autumn { --label-color: #fff0b6; }
+  .winter { --label-color: #cce8ff; }
+  .explore {
+    position: absolute;
+    z-index: 5;
+    left: 50%;
+    bottom: max(9%, calc(env(safe-area-inset-bottom) + 16px));
+    transform: translateX(-50%);
+    min-width: 158px;
+    min-height: 50px;
+    font-size: 1.0625rem;
+  }
+  .season-tabs > button:hover, .explore:hover { background: #171b1355; }
+  .season-tabs > button[aria-pressed="true"] { background: #171b1380; }
+  .season-tabs > button:focus-visible, .explore:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+</style>

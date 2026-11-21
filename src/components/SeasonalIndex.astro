@@ -1,0 +1,57 @@
+---
+import ArchiveSurface from "./ArchiveSurface.astro";
+import ArchiveEntry from "./ArchiveEntry.astro";
+import { seasons } from "../lib/seasons";
+
+interface Entry {
+  id: string;
+  data: { title: string; englishTitle?: string; description: string; cover: string; seasons: string[]; category?: string };
+}
+interface Props { entries: Entry[]; kind: "recipes" | "ingredients"; selectedSeason?: (typeof seasons)[number]["id"]; showSeasonHeading?: boolean; }
+const { entries, kind, selectedSeason, showSeasonHeading = true } = Astro.props;
+---
+<ArchiveSurface>
+  <div class="seasonal-index">
+    {!selectedSeason && seasons.map((season, index) => <input class="season-choice" type="radio" name="season" id={`choose-${season.id}`} checked={index === 0} />)}
+    {!selectedSeason && <div class="season-links" role="group" aria-label="Seasons">
+      {seasons.map((season) => <label for={`choose-${season.id}`}>{season.label}</label>)}
+    </div>}
+    {seasons.filter(({ id }) => !selectedSeason || id === selectedSeason).map((season) => {
+      const items = entries.filter((entry) => entry.data.seasons.includes(season.id));
+      const groups = kind === "recipes" ? [...new Set(items.map((entry) => entry.data.category ?? ""))] : [""];
+      return (
+        <section id={season.id} class:list={["season", { standalone: selectedSeason }]} >
+          {showSeasonHeading && <h2>{season.label}</h2>}
+          {items.length === 0 ? <p class="empty">Coming soon.</p> : groups.map((group) => (
+            <div class="group">
+              {group && <h3>{group}</h3>}
+              {items.filter((item) => kind === "ingredients" || item.data.category === group).map((item) => (
+                <ArchiveEntry href={`/${kind}/${item.id}/`} eyebrow={season.label} title={item.data.title} secondary={item.data.englishTitle ?? ""} description={item.data.description} image={item.data.cover} />
+              ))}
+            </div>
+          ))}
+        </section>
+      );
+    })}
+  </div>
+</ArchiveSurface>
+<style>
+  .season-links { display: flex; flex-wrap: wrap; gap: 12px 28px; border-bottom: 1px solid var(--color-line); padding-bottom: 24px; }
+  .season-choice { position: absolute; opacity: 0; }
+  .season-links label { color: var(--color-text-main); cursor: pointer; padding: 6px 0; }
+  #choose-spring:focus-visible ~ .season-links label[for="choose-spring"],
+  #choose-summer:focus-visible ~ .season-links label[for="choose-summer"],
+  #choose-autumn:focus-visible ~ .season-links label[for="choose-autumn"],
+  #choose-winter:focus-visible ~ .season-links label[for="choose-winter"] { outline: 1px solid currentColor; outline-offset: -2px; }
+  #choose-spring:checked ~ .season-links label[for="choose-spring"],
+  #choose-summer:checked ~ .season-links label[for="choose-summer"],
+  #choose-autumn:checked ~ .season-links label[for="choose-autumn"],
+  #choose-winter:checked ~ .season-links label[for="choose-winter"] { text-decoration: underline; text-underline-offset: 6px; }
+  .season { display: none; padding-top: 56px; }
+  #choose-spring:checked ~ #spring, #choose-summer:checked ~ #summer,
+  #choose-autumn:checked ~ #autumn, #choose-winter:checked ~ #winter { display: block; }
+  .season.standalone { display: block; padding-top: 0; }
+  .season h2 { font-size: clamp(34px, 5vw, 52px); font-weight: 400; margin: 0 0 24px; }
+  .group h3 { font-size: 19px; font-weight: 400; letter-spacing: 2px; margin: 40px 0 18px; }
+  .empty { color: var(--color-text-muted); border-top: 1px solid var(--color-line); padding-top: 24px; }
+</style>

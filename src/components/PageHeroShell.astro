@@ -8,6 +8,7 @@ interface Props {
   eyebrow: string;
   backgroundImage: string;
   backgroundPosition?: string;
+  sharedNavigation?: boolean;
 }
 
 const {
@@ -16,6 +17,7 @@ const {
   eyebrow,
   backgroundImage,
   backgroundPosition = "center",
+  sharedNavigation = false,
 } = Astro.props;
 ---
 
@@ -23,11 +25,12 @@ const {
   class="page-hero-shell"
   style={`--page-hero-image: url('${backgroundImage}'); --page-hero-position: ${backgroundPosition};`}
 >
-  <Navbar transparent />
+  <div class:list={{ "shared-navigation": sharedNavigation }}><Navbar transparent /></div>
   <PageHeader title={title} subtitle={subtitle} eyebrow={eyebrow} />
 </div>
 
 <style>
+  .shared-navigation { view-transition-name: season-navigation; }
   .page-hero-shell {
     background-image:
       linear-gradient(
