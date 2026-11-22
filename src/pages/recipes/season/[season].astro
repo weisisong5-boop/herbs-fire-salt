@@ -12,6 +12,13 @@ export function getStaticPaths() {
 const { season } = Astro.props;
 const { recipes } = await getPairings();
 recipes.sort(byOrderThenTitle);
+const titleAccents = {
+  spring: { translation: "春", image: "spring-pea-shoot.webp", height: 223 },
+  summer: { translation: "夏", image: "summer-tomato-vine.webp", height: 138 },
+  autumn: { translation: "秋", image: "autumn-grape-leaf.webp", height: 253 },
+  winter: { translation: "冬", image: "winter-rosemary.webp", height: 133 },
+};
+const titleAccent = titleAccents[season.id as keyof typeof titleAccents];
 ---
 <BaseLayout title={`${season.label} Recipes - Herbs - Fire - Salt`} seasonTransition>
   <header class="season-header">
@@ -25,10 +32,176 @@ recipes.sort(byOrderThenTitle);
     />
     <div class="season-navigation"><Navbar transparent /></div>
     <div class="season-index">
-      <h1>{season.label}</h1>
+      {titleAccent ? (
+        <h1 class:list={["season-display-title", { "summer-display-title": season.id === "summer", "autumn-display-title": season.id === "autumn", "winter-display-title": season.id === "winter" }]}>
+          <span class="season-display-word">{season.label}{season.id === "summer" ? (<span class="season-title-accent" aria-hidden="true"><img class="tomato-vine-layer" src="/images/summer-tomato-vine.webp" alt="" width="320" height="138" /><img class="tomato-fruit-layer" src="/images/summer-tomato-vine.webp" alt="" width="320" height="138" /></span>) : (season.id === "winter" ? (<span class="season-title-accent" aria-hidden="true"><img class="winter-rosemary-layer" src="/images/winter-rosemary.webp" alt="" width="320" height="133" /><img class="winter-frost-layer" src="/images/winter-rosemary.webp" alt="" width="320" height="133" /></span>) : (<img class="season-title-accent" src={`/images/${titleAccent.image}`} alt="" width="320" height={titleAccent.height} />))}</span>
+          <span class="season-display-translation" lang="zh">{titleAccent.translation}</span>
+        </h1>
+      ) : (
+        <h1>{season.label}</h1>
+      )}
     </div>
   </header>
   <RecipeContents recipes={recipes.filter((recipe) => recipe.data.seasons.includes(season.id))} />
+{titleAccent && <style is:inline>
+  .season-header:has(.season-display-title) { overflow: clip; }
+  .season-index:has(.season-display-title) {
+    --season-title-inset: 60px;
+    width: calc(100% - 2 * var(--season-title-inset));
+  }
+  @media (max-width: 1024px) {
+    .season-index:has(.season-display-title) { --season-title-inset: 32px; }
+  }
+  @media (max-width: 640px) {
+    .season-index:has(.season-display-title) { --season-title-inset: 16px; }
+  }
+  .season-index .season-display-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.44em;
+    font-family: Didot, "Bodoni MT", "Times New Roman", serif;
+    font-size: clamp(3.625rem, 8vw, 7.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.045em;
+    text-shadow: 1px 2px 3px #111a12b3, 3px 6px 13px #111a1299;
+  }
+  .season-display-word {
+    position: relative;
+    white-space: nowrap;
+  }
+  .season-display-translation {
+    font-family: "Songti SC", SimSun, "Noto Serif CJK SC", serif;
+    font-size: 0.26em;
+    letter-spacing: normal;
+  }
+  .season-title-accent {
+    position: absolute;
+    left: calc(-1 * var(--season-title-inset) - 3px);
+    bottom: -0.38em;
+    transform-origin: left bottom;
+    transform: rotate(8deg) translateX(100%) scaleX(-1);
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+    filter: drop-shadow(1px 2px 1px #142012c2);
+  }
+  .summer-display-title .season-title-accent {
+    bottom: -0.11em;
+    transform-origin: left top;
+    transform: rotate(5deg);
+  }
+  .summer-display-title .season-title-accent {
+    aspect-ratio: 320 / 138;
+  }
+  .tomato-vine-layer, .tomato-fruit-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .tomato-vine-layer {
+    clip-path: polygon(0 0, 100% 0, 100% 66%, 96% 64%, 91% 68%, 86% 65%, 82% 72%, 82% 100%, 0 100%);
+  }
+  .tomato-fruit-layer {
+    clip-path: polygon(82% 72%, 86% 65%, 91% 68%, 96% 64%, 100% 66%, 100% 100%, 82% 100%);
+    transform-origin: 91% 66%;
+  }
+  .autumn-display-title .season-title-accent {
+    left: 96%;
+    bottom: -0.32em;
+    width: 25%;
+    transform: none;
+    transform-origin: left top;
+    filter: drop-shadow(1px 2px 1px #281a12c9) drop-shadow(4px 6px 5px #281a1266);
+  }
+  .winter-display-title .season-title-accent {
+    left: 23%;
+    bottom: -0.25em;
+    width: 75%;
+    transform: none;
+    animation: none;
+  }
+  .winter-display-title .season-title-accent::before {
+    content: "";
+    position: absolute;
+    right: calc(100% - 2px);
+    bottom: 5%;
+    width: calc(var(--season-title-inset) + 32% + 3px);
+    height: clamp(1px, 0.025em, 3px);
+    background: linear-gradient(180deg, #9b9160, #524c2c);
+    border-radius: 50% 0 0 50%;
+    transform: rotate(-4deg);
+    transform-origin: right center;
+  }
+  .winter-rosemary-layer, .winter-frost-layer {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .winter-frost-layer {
+    position: absolute;
+    inset: 0;
+    filter: grayscale(1) brightness(2.65) contrast(1.06);
+    mask-image: linear-gradient(165deg, #000 8%, #000c 32%, #0006 59%, transparent 88%);
+    opacity: .82;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .winter-frost-layer {
+      animation: winter-frost-spread 1s cubic-bezier(.28, .08, .45, 1) backwards;
+    }
+    .winter-display-title .season-title-accent::before {
+      animation: winter-stem-grow 1s linear backwards;
+      animation-play-state: inherit;
+    }
+    .winter-rosemary-layer {
+      animation: winter-rosemary-grow 1s linear backwards;
+      animation-play-state: inherit;
+    }
+    @keyframes winter-stem-grow {
+      from { clip-path: inset(-4px 100% -4px 0); }
+      23%, to { clip-path: inset(-4px); }
+    }
+    @keyframes winter-rosemary-grow {
+      from, 20% { clip-path: inset(0 100% 0 0); }
+      81%, to { clip-path: inset(0); }
+    }
+    @keyframes winter-frost-spread {
+      from, 29% { clip-path: inset(0 100% 0 0); opacity: 0; }
+      53% { opacity: .67; }
+      to { clip-path: inset(0); opacity: .82; }
+    }
+    .autumn-display-title .season-title-accent {
+      animation: autumn-leaf-fall 1s ease-out backwards;
+    }
+    @keyframes autumn-leaf-fall {
+      from { opacity: 0; transform: translate(0.8em, -2.15em) rotate(27deg) scaleX(.65); }
+      22% { opacity: 1; }
+      52% { transform: translate(.28em, -.8em) rotate(-11deg) scaleX(.92); }
+      81% { transform: translate(-.035em, .04em) rotate(4deg); }
+      to { transform: none; }
+    }
+    .season-title-accent { animation: vine-grow 1s cubic-bezier(0.32, 0, 0.38, 1) backwards; }
+    @keyframes vine-grow {
+      from { clip-path: inset(-16px -16px -16px 100%); }
+      to { clip-path: inset(-16px); }
+    }
+    .summer-display-title .season-title-accent {
+      animation: tomato-vine-grow 1s linear backwards;
+    }
+    .tomato-fruit-layer {
+      animation: tomato-fruit-grow 1s linear backwards;
+    }
+    @keyframes tomato-vine-grow {
+      from { clip-path: inset(-16px 100% -16px -16px); animation-timing-function: cubic-bezier(.32, 0, .58, .82); }
+      65%, to { clip-path: inset(-16px); }
+    }
+    @keyframes tomato-fruit-grow {
+      from, 55% { transform: scale(0); animation-timing-function: cubic-bezier(.22, .7, .35, 1); }
+      92% { transform: scale(1, 1.035); }
+      to { transform: scale(1); }
+    }
+  }
+</style>}
 </BaseLayout>
 <style>
   .season-header {

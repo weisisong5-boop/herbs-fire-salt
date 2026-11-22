@@ -1,0 +1,4 @@
+.season-cover-handoff{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;view-transition-name:season-cover-photo}
+.has-cover-handoff .season-cover-photo{view-transition-name:none;opacity:0}
+html.season-motion-js .season-header:not([data-motion-ready]) :is(.spring-pea-shoot,.season-title-accent,.tomato-fruit-layer,.winter-frost-layer){animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){::view-transition-group(season-cover-photo),::view-transition-group(season-heading),::view-transition-group(season-navigation){animation-duration:0s}}

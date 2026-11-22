@@ -60,6 +60,11 @@ const {
         setIngredientsTransition(event, window.navigation?.activation?.from?.url);
       });
     </script>}
+    {seasonTransition && <>
+      <link rel="stylesheet" href="/season-handoff.css?v=2">
+      <script is:inline>document.documentElement.classList.add("season-motion-js");setTimeout(() => document.documentElement.classList.remove("season-motion-js"),10000);</script>
+      <script is:inline defer src="/season-handoff.js?v=2"></script>
+    </>}
   </head>
 
   <body>
